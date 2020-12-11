@@ -1,12 +1,13 @@
 <template>
   <div>
     <el-button type="primary" class="el-icon-plus">添加</el-button>
-    <el-table :data="tableData" border style="width: 100%">
-      <el-table-column prop="id" label="序号" width="100px"> </el-table-column>
-      <el-table-column prop="name" label="品牌名称"> </el-table-column>
+    <el-table :data="trademarkList" border style="width: 100%">
+      <el-table-column type="index" label="序号" width="100px">
+      </el-table-column>
+      <el-table-column prop="tmName" label="品牌名称"> </el-table-column>
       <el-table-column prop="logo" label="品牌LOGO">
         <template slot-scope="scope">
-          <img class="trademark-img" :src="scope.row.logo" alt="" />
+          <img class="trademark-img" :src="scope.row.logoUrl" alt="" />
         </template>
       </el-table-column>
       <el-table-column prop="opration" label="操作">
@@ -16,10 +17,14 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-pagination layout="prev, pager, next, jumper, sizes, total"
-    :total="30"
-    :page-sizes="[3,6,9]"
-    :page-size="3"
+    <el-pagination
+      layout="prev, pager, next, jumper, sizes, total"
+      :total="total"
+      :page-sizes="[3, 6, 9]"
+      :page-size.sync="size"
+      :current-page="currentPage"
+      @size-change="getPageList(currentPage, $event)"
+      @current-change="getPageList($event, size)"
     >
     </el-pagination>
   </div>
@@ -30,23 +35,35 @@ export default {
   name: 'TrademarkList',
   data() {
     return {
-      tableData: [
-        {
-          id: 1,
-          name: '哈士奇',
-          logo:
-            'https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3599475514,2710235154&fm=26&gp=0.jpg',
-        },
-      ],
+      trademarkList: [],
+      total: 0,
+      currentPage: 1,
+      size: 3,
     }
+  },
+  methods: {
+    async getPageList(page, size) {
+      const result = await this.$API.trademark.getPageList(page, size)
+      // console.log(result)
+      this.trademarkList = result.data.records
+      this.total = result.data.total
+      this.currentPage = result.data.current
+      this.size = result.data.size
+    },
+  },
+  mounted() {
+    this.getPageList(this.currentPage, this.size)
   },
 }
 </script>
-<style lang="sass">
+<style lang="sass" scoped>
 .trademark-img
   width: 150px
+  height: 75px
 .el-table
   margin: 20px 0
 .el-pagination
   text-align: right
+>>>.el-pagination__jump
+  margin-left: 500px
 </style>
