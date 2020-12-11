@@ -4,6 +4,8 @@
       >添加</el-button
     >
 
+    <!-- <Test :a.sync="count" /> -->
+
     <!-- 表格 -->
     <el-table :data="trademarkList" border style="width: 100%">
       <el-table-column type="index" label="序号" width="100px">
@@ -49,7 +51,7 @@
 
     <!-- 新增对话框 -->
     <el-dialog
-      :title="trademarkForm.id?'修改品牌':'添加品牌'"
+      :title="trademarkForm.id ? '修改品牌' : '添加品牌'"
       :visible.sync="visible"
       width="60%"
       :before-close="handleClose"
@@ -90,6 +92,7 @@
 </template>
 
 <script>
+// import Test from './test'
 export default {
   name: 'TrademarkList',
   data() {
@@ -110,8 +113,12 @@ export default {
           { required: true, message: '请上传品牌LOGO', trigger: 'change' },
         ],
       },
+      // count: 0,
     }
   },
+  // components: {
+  //   Test,
+  // },
   methods: {
     // 获取品牌管理数据
     async getPageList(page, size) {
