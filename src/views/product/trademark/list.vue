@@ -1,8 +1,6 @@
 <template>
   <div>
-    <el-button type="primary" class="el-icon-plus" @click="visible = true"
-      >添加</el-button
-    >
+    <el-button type="primary" class="el-icon-plus" @click="add">添加</el-button>
 
     <!-- <Test :a.sync="count" /> -->
 
@@ -17,19 +15,17 @@
         </template>
       </el-table-column>
       <el-table-column label="操作">
-        <template slot-scope="scope">
+        <template v-slot="{ row }">
           <el-button
             type="warning"
             class="el-icon-edit"
-            @click="
-              updateTrademark(scope.row.tmName, scope.row.logoUrl, scope.row.id)
-            "
+            @click="updateTrademark(row)"
             >修改</el-button
           >
           <el-button
             type="danger"
             class="el-icon-delete"
-            @click="delTrademark(scope.row.id)"
+            @click="delTrademark(row.id)"
             >删除</el-button
           >
         </template>
@@ -64,7 +60,7 @@
             :style="{ width: '70%' }"
           ></el-input>
         </el-form-item>
-        <el-form-item label="品牌LOGO" prop="logoUrl" label-width="100px">
+        <el-form-item label="品牌logo" prop="logoUrl" label-width="100px">
           <el-upload
             class="avatar-uploader"
             :action="`${$BASE_API}/admin/product/fileUpload`"
@@ -82,7 +78,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="visible = false">取 消</el-button>
+        <el-button @click="handleClose">取 消</el-button>
         <el-button type="primary" @click="submitForm('trademarkForm')"
           >确 定</el-button
         >
@@ -108,7 +104,9 @@ export default {
         id: '',
       },
       rules: {
-        name: [{ required: true, message: '请输入品牌名称', trigger: 'blur' }],
+        tmName: [
+          { required: true, message: '请输入品牌名称', trigger: 'blur' },
+        ],
         logoUrl: [
           { required: true, message: '请上传品牌LOGO', trigger: 'change' },
         ],
@@ -123,7 +121,7 @@ export default {
     // 获取品牌管理数据
     async getPageList(page, size) {
       const result = await this.$API.trademark.getPageList(page, size)
-      console.log(result)
+      // console.log(result)
       // console.log('current:',result.data.current, 'size:',result.data.size)
       this.trademarkList = result.data.records
       this.total = result.data.total
@@ -136,8 +134,19 @@ export default {
       this.visible = false
     },
 
+    // 打开添加窗口
+    add() {
+      this.visible = true
+      this.$refs.trademarkForm && this.$refs.trademarkForm.clearValidate()
+      this.trademarkForm = {}
+      // this.trademarkForm.tmName = ''
+      // this.trademarkForm.logoUrl = ''
+      // this.trademarkForm.id = ''
+    },
+
     //上传成功函数
     handleAvatarSuccess(res) {
+      console.log(res.data)
       this.trademarkForm.logoUrl = res.data
     },
 
@@ -159,7 +168,13 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate(async (valid) => {
         if (valid) {
-          const { id } = this.trademarkForm
+          const { id, tmName, logoUrl } = this.trademarkForm
+          // 判断数据是否更新，不更新则无法提交
+          const tm = this.trademarkList.find((trademark) => id === trademark.id)
+          if (tm.tmName === tmName && tm.logoUrl === logoUrl) {
+            this.$message.warning('请修改数据后再更新')
+            return
+          }
           const result = id
             ? await this.$API.trademark.updateTrademark(this.trademarkForm)
             : await this.$API.trademark.addTrademark(this.trademarkForm)
@@ -167,7 +182,6 @@ export default {
             const data = id ? '修改数据成功!' : '上传数据成功!'
             this.$message.success(data)
             this.visible = false
-            this.trademarkForm.id = ''
             this.getPageList(this.currentPage, this.size)
           } else {
             this.$message.error(result.message)
@@ -179,18 +193,33 @@ export default {
     },
 
     // 删除品牌数据
-    async delTrademark(id) {
-      await this.$API.trademark.delTrademark(id)
-      this.getPageList(this.currentPage, this.size)
+    delTrademark(id) {
+      this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      })
+        .then(async () => {
+          await this.$API.trademark.delTrademark(id)
+          this.getPageList(this.currentPage, this.size)
+          this.$message({
+            type: 'success',
+            message: '删除成功!',
+          })
+        })
+        .catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除',
+          })
+        })
     },
 
     // 更新品牌数据
-    updateTrademark(tmName, logoUrl, id) {
+    updateTrademark(row) {
       this.visible = true
-      this.trademarkForm.tmName = tmName
-      this.trademarkForm.logoUrl = logoUrl
-      this.trademarkForm.id = id
-      // this.$API.trademark.delTrademark(id)
+      this.trademarkForm = { ...row }
+      this.$refs.trademarkForm && this.$refs.trademarkForm.clearValidate()
     },
   },
   mounted() {
@@ -201,7 +230,7 @@ export default {
 <style lang="sass" scoped>
 .trademark-img
   width: 150px
-  height: 75px
+  height: 120px
 
 .el-table
   margin: 20px 0
