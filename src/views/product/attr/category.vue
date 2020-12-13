@@ -7,6 +7,7 @@
             v-model="category.category1Id"
             placeholder="活动区域"
             @change="handleChange(1, $event)"
+            :disabled="isEditShow"
           >
             <el-option
               :label="attrVal1.name"
@@ -21,6 +22,7 @@
             v-model="category.category2Id"
             placeholder="活动区域"
             @change="handleChange(2, $event)"
+            :disabled="isEditShow"
           >
             <el-option
               :label="attrVal2.name"
@@ -35,6 +37,7 @@
             v-model="category.category3Id"
             placeholder="活动区域"
             @change="getAttrTable"
+            :disabled="isEditShow"
           >
             <el-option
               :label="attrVal3.name"
@@ -64,6 +67,7 @@ export default {
       attrVal3List: [],
     }
   },
+  props: ['isEditShow'],
   methods: {
     // 获取分类属性信息
     async handleChange(classId, categoryId) {
@@ -78,6 +82,7 @@ export default {
         this.attrVal3List = []
         this.category.category3Id = ''
       }
+      this.$emit('change', this.category)
       const res = await this.$API.attr[
         `getCategorys${classId ? classId + 1 : 1}`
       ](categoryId)
@@ -86,12 +91,11 @@ export default {
 
     // 获取分类后属性信息
     async getAttrTable(category3Id) {
-      const result = await this.$API.attr.getAttrlist({
+      this.category = {
         ...this.category,
         category3Id,
-      })
-      const attrList = result.data
-      this.$emit('change', attrList)
+      }
+      this.$emit('change', this.category)
     },
   },
   mounted() {
