@@ -5,7 +5,12 @@
     <!-- <Test :a.sync="count" /> -->
 
     <!-- 表格 -->
-    <el-table :data="trademarkList" border style="width: 100%">
+    <el-table
+      :data="trademarkList"
+      border
+      style="width: 100%"
+      v-loading="loading"
+    >
       <el-table-column type="index" label="序号" width="100px">
       </el-table-column>
       <el-table-column prop="tmName" label="品牌名称"> </el-table-column>
@@ -111,6 +116,7 @@ export default {
           { required: true, message: '请上传品牌LOGO', trigger: 'change' },
         ],
       },
+      loading: false,
       // count: 0,
     }
   },
@@ -120,6 +126,7 @@ export default {
   methods: {
     // 获取品牌管理数据
     async getPageList(page, size) {
+      this.loading = true
       const result = await this.$API.trademark.getPageList(page, size)
       // console.log(result)
       // console.log('current:',result.data.current, 'size:',result.data.size)
@@ -127,6 +134,7 @@ export default {
       this.total = result.data.total
       this.currentPage = result.data.current
       this.size = result.data.size
+      this.loading = false
     },
 
     // 关闭对话框处理函数
@@ -138,10 +146,10 @@ export default {
     add() {
       this.visible = true
       this.$refs.trademarkForm && this.$refs.trademarkForm.clearValidate()
-      this.trademarkForm = {}
-      // this.trademarkForm.tmName = ''
-      // this.trademarkForm.logoUrl = ''
-      // this.trademarkForm.id = ''
+      // this.trademarkForm = {}
+      this.trademarkForm.tmName = ''
+      this.trademarkForm.logoUrl = ''
+      this.trademarkForm.id = ''
     },
 
     //上传成功函数
@@ -218,6 +226,7 @@ export default {
     // 更新品牌数据
     updateTrademark(row) {
       this.visible = true
+      // this.trademarkForm = row
       this.trademarkForm = { ...row }
       this.$refs.trademarkForm && this.$refs.trademarkForm.clearValidate()
     },
@@ -230,7 +239,6 @@ export default {
 <style lang="sass" scoped>
 .trademark-img
   width: 150px
-  height: 120px
 
 .el-table
   margin: 20px 0
