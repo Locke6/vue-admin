@@ -71,7 +71,9 @@
         @click="addAttr"
         >添加属性值</el-button
       >
-      <el-button style="margin-left: 10px" @click="cancelEdit">取消</el-button>
+      <el-button style="margin-left: 10px" @click="isEditShow = false"
+        >取消</el-button
+      >
       <el-table :data="attrForm.attrValueList" border style="width: 100%">
         <el-table-column type="index" label="序号" width="100px">
         </el-table-column>
@@ -81,7 +83,7 @@
               v-model="row.valueName"
               v-if="row.edit"
               @blur="completeEdit(row)"
-              autofocus
+              @keyup.enter.native="completeEdit(row)"
               size="mini"
               ref="input"
             ></el-input>
@@ -117,7 +119,7 @@
         @click="save"
         >保存</el-button
       >
-      <el-button style="margin: 20px 0 0 10px" @click="cancelEdit"
+      <el-button style="margin: 20px 0 0 10px" @click="isEditShow = false"
         >取消</el-button
       >
     </el-card>
@@ -161,6 +163,7 @@ export default {
       this.isEditShow = true
       this.attrForm.attrName = ''
       this.attrForm.attrValueList = []
+      this.attrForm.id = ''
     },
 
     // 编辑属性
@@ -207,11 +210,9 @@ export default {
       this.$set(attrObj, 'edit', true)
       this.attrForm.attrValueList.push(attrObj)
       this.attrForm.categoryId = this.category.category3Id
-    },
-
-    // 取消添加/修改
-    cancelEdit() {
-      this.isEditShow = false
+      this.$nextTick(() => {
+        this.$refs.input.focus()
+      })
     },
 
     // 点击文字可转换成输入框进行修改
@@ -221,11 +222,9 @@ export default {
       } else {
         this.$set(row, 'edit', true)
       }
-      if (this.$refs.input) {
-        this.$nextTick(() => {
-          this.$refs.input.focus()
-        })
-      }
+      this.$nextTick(() => {
+        this.$refs.input.focus()
+      })
     },
 
     // 退出修改
@@ -236,7 +235,7 @@ export default {
 
     async save() {
       const result = await this.$API.attr.saveAttrInfo(this.attrForm)
-      console.log(result)
+      // console.log(result)
       if (result.code === 200) {
         this.$message.success('更新属性成功')
         this.getAttrList(this.category)
