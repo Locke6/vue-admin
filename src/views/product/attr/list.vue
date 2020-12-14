@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Category @change="getAttrList" :isEditShow="isEditShow" />
+    <Category :isEditShow="isEditShow" />
 
     <!-- 展示table -->
     <el-card class="box-card" v-show="!isEditShow" style="margin-top: 20px">
@@ -9,7 +9,7 @@
         class="el-icon-plus"
         style="margin-bottom: 20px"
         @click="add"
-        :disabled="addAttrShow"
+        :disabled="!category.category3Id"
         >添加属性</el-button
       >
       <el-table :data="attrList" border style="width: 100%">
@@ -127,36 +127,28 @@
 </template>
 
 <script>
-import Category from './category'
+import Category from '@/components/Category'
 export default {
   name: 'AttrList',
   data() {
     return {
       attrList: [],
       isEditShow: false,
-      category: {},
+      category: {
+        category1Id: '',
+        category2Id: '',
+        category3Id: '',
+      },
       attrForm: {
         attrName: '',
         attrValueList: [],
-        categoryId: '',
-        categoryLevel: 3,
       },
-      addAttrShow: true,
     }
   },
   components: {
     Category,
   },
-  watch: {
-    // 开启/关闭添加属性框
-    attrList() {
-      // console.log(1)
-      if (this.category.category3Id) {
-        return (this.addAttrShow = false)
-      }
-      this.addAttrShow = true
-    },
-  },
+
   methods: {
     // 添加属性
     add() {
@@ -182,7 +174,7 @@ export default {
       this.category = category
       if (!this.category.category3Id) return (this.attrList = [])
       const result = await this.$API.attr.getAttrlist(category)
-      console.log(result.data)
+      // console.log(result.data)
       if (result.code === 200) {
         this.$message.success('获取属性成功')
         this.attrList = result.data
@@ -234,6 +226,10 @@ export default {
     },
 
     async save() {
+      if (!this.attrForm.id) {
+        this.attrForm.categoryId = this.category.category3Id
+        this.attrForm.categoryLevel = 3
+      }
       const result = await this.$API.attr.saveAttrInfo(this.attrForm)
       // console.log(result)
       if (result.code === 200) {
@@ -244,6 +240,12 @@ export default {
       }
       this.isEditShow = false
     },
+  },
+  mounted() {
+    this.$bus.$on('change', this.getAttrList)
+  },
+  beforeDestroy() {
+    this.$bus.$off('change', this.getAttrList)
   },
 }
 </script>

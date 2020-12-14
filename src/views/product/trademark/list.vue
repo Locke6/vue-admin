@@ -40,6 +40,7 @@
     <!-- 分页器 -->
     <!-- 自定义事件中$event参数=事件的值 -->
     <el-pagination
+      class="pagination"
       layout="prev, pager, next, jumper, sizes, total"
       :total="total"
       :page-sizes="[3, 6, 9]"
@@ -243,8 +244,6 @@ export default {
 .el-table
   margin: 20px 0
 
-.el-pagination
-  text-align: right
 
 >>>.avatar-uploader .el-upload
   border: 1px dashed #d9d9d9

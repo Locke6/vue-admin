@@ -1,13 +1,17 @@
 <template>
   <div>
     <el-card class="box-card">
-      <el-form :inline="true" :model="category" class="demo-form-inline">
+      <el-form
+        :inline="true"
+        :model="category"
+        :disabled="!isEditShow"
+        class="demo-form-inline"
+      >
         <el-form-item label="一级分类">
           <el-select
             v-model="category.category1Id"
             placeholder="活动区域"
             @change="handleChange(1, $event)"
-            :disabled="isEditShow"
           >
             <el-option
               :label="attrVal1.name"
@@ -22,7 +26,6 @@
             v-model="category.category2Id"
             placeholder="活动区域"
             @change="handleChange(2, $event)"
-            :disabled="isEditShow"
           >
             <el-option
               :label="attrVal2.name"
@@ -37,7 +40,6 @@
             v-model="category.category3Id"
             placeholder="活动区域"
             @change="getAttrTable"
-            :disabled="isEditShow"
           >
             <el-option
               :label="attrVal3.name"
@@ -82,7 +84,7 @@ export default {
         this.attrVal3List = []
         this.category.category3Id = ''
       }
-      this.$emit('change', this.category)
+      this.$bus.$emit('change', this.category)
       const res = await this.$API.attr[
         `getCategorys${classId ? classId + 1 : 1}`
       ](categoryId)
@@ -95,7 +97,7 @@ export default {
         ...this.category,
         category3Id,
       }
-      this.$emit('change', this.category)
+      this.$bus.$emit('change', this.category)
     },
   },
   mounted() {
