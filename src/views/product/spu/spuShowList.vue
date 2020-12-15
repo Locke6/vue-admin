@@ -4,7 +4,7 @@
       type="primary"
       class="el-icon-plus"
       style="margin-bottom: 20px"
-      :disabled="!category.category3Id"
+      :disabled="!category3Id"
       @click="$emit('showUpdateList')"
       >添加SPU</el-button
     >
@@ -24,7 +24,7 @@
             type="primary"
             class="el-icon-edit"
             size="mini"
-            @click="$emit('showUpdateList', row, category)"
+            @click="$emit('showUpdateList', row)"
           ></el-button>
           <el-button type="info" class="el-icon-info" size="mini"></el-button>
           <el-popconfirm
@@ -61,25 +61,21 @@ export default {
   data() {
     return {
       spuList: [],
-      category: {
-        category1Id: '',
-        category2Id: '',
-        category3Id: '',
-      },
+
+      category3Id: '',
+
       page: 1,
       limit: 6,
       total: 0,
       loading: false,
     }
   },
-  props: {
-    categorySave: Object,
-  },
+
   methods: {
     // 获取分级后SPU列表
-    async getAttrList(category) {
-      this.category = category
-      if (!this.category.category3Id) {
+    async getAttrList(category3Id) {
+      this.category3Id = category3Id
+      if (!this.category3Id) {
         this.page = 1
         this.total = 0
         this.limit = 6
@@ -93,7 +89,7 @@ export default {
     // 发送请求获取SPU数据
     async getSpuList(page, limit) {
       this.loading = true
-      const { category3Id } = this.category
+      const { category3Id } = this
       const result = await this.$API.spu.getSpuList({
         page,
         limit,
@@ -114,7 +110,6 @@ export default {
   },
   mounted() {
     this.$bus.$on('change', this.getAttrList)
-    this.getAttrList(this.categorySave)
   },
   beforeDestroy() {
     this.$bus.$off('change', this.getAttrList)

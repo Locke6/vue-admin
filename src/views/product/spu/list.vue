@@ -6,7 +6,6 @@
     <SpuShowList
       v-if="isEditShow"
       @showUpdateList="showUpdateList"
-      :categorySave="categorySave"
     />
     <!-- 添加/修改table -->
     <SpuUpdateList
@@ -31,7 +30,7 @@ export default {
         attrValueList: [],
       },
       tranferSpu: {},
-      categorySave: {},
+      category3Id: '',
     }
   },
   components: {
@@ -41,6 +40,8 @@ export default {
   },
 
   methods: {
+    //
+
     // 显示更新SPU组件
     showUpdateList(row, category) {
       this.isEditShow = false
@@ -49,24 +50,14 @@ export default {
     },
 
     // 显示展示SPU组件
-    showDisplayList() {
+    showDisplayList(category3Id) {
       this.isEditShow = true
+      this.category3Id = category3Id
+      this.$nextTick(() => {
+        this.$bus.$emit('change', this.category3Id)
+      })
     },
-    /* async save() {
-      if (!this.attrForm.id) {
-        this.attrForm.categoryId = this.category.category3Id
-        this.attrForm.categoryLevel = 3
-      }
-      const result = await this.$API.attr.saveAttrInfo(this.attrForm)
-      // console.log(result)
-      if (result.code === 200) {
-        this.$message.success('更新属性成功')
-        this.getAttrList(this.category)
-      } else {
-        this.$message.error(result.message)
-      }
-      this.isEditShow = false
-    }, */
+
   },
 }
 </script>

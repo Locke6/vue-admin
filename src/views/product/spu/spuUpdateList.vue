@@ -1,10 +1,10 @@
 <template>
   <el-card class="box-card" style="margin-top: 20px">
-    <el-form :model="spuList" label-width="100px">
-      <el-form-item label="SPU名称">
+    <el-form :model="spuList" label-width="100px" :rules="rules" ref="spuForm" >
+      <el-form-item label="SPU名称" prop="spuName">
         <el-input placeholder="SPU名称" v-model="spuList.spuName"></el-input>
       </el-form-item>
-      <el-form-item label="品牌">
+      <el-form-item label="品牌" prop="tmId">
         <el-select placeholder="请选择品牌" v-model="spuList.tmId">
           <el-option
             :label="trademark.tmName"
@@ -14,14 +14,14 @@
           ></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="SPU描述">
+      <el-form-item label="SPU描述" prop="description">
         <el-input
           type="textarea"
           placeholder="SPU描述"
           v-model="spuList.description"
         ></el-input>
       </el-form-item>
-      <el-form-item label="SPU图片" prop="logoUrl">
+      <el-form-item label="SPU图片" prop="spuImageList">
         <el-upload
           class="avatar-uploader"
           :action="`${$BASE_API}/admin/product/fileUpload`"
@@ -37,7 +37,7 @@
           <img width="100%" :src="previewImageUrl" alt="" />
         </el-dialog>
       </el-form-item>
-      <el-form-item label="销售属性">
+      <el-form-item label="销售属性" prop="filterSaleAttr">
         <el-select
           :placeholder="
             filterSaleAttrList.length
@@ -108,7 +108,7 @@
               <!-- 传下标，将属性从属性列表中删除 -->
               <el-popconfirm
                 :title="`确定删除${row.valueName}属性吗？`"
-                @onConfirm="delEditAttrValue($index)"
+                @onConfirm="delSpuSaleAttr($index)"
               >
                 <el-button
                   type="danger"
@@ -120,12 +120,16 @@
             </template>
           </el-table-column>
         </el-table>
-        <el-button type="primary" :disabled="false" style="margin-top: 20px"
+        <el-button
+          type="primary"
+          :disabled="false"
+          style="margin-top: 20px"
+          @click="save('spuForm')"
           >保存</el-button
         >
         <el-button
           style="margin: 20px 0 0 10px"
-          @click="$emit('showDisplayList')"
+          @click="$emit('showDisplayList', spuList.category3Id)"
           >取消</el-button
         >
       </el-form-item>
@@ -146,8 +150,14 @@ export default {
       previewImageUrl: '',
       spuSaleAttrList: [],
       saleAttrList: [],
-      addSpuSaleAttr: {},
       inputValue: '',
+      rules: {
+        spuName: [{ required: true, message: '请输入SPU名称' }],
+        tmId: [{ required: true, message: '请选择SPU品牌' }],
+        description: [{ required: true, message: '请输入SPU描述' }],
+        spuImageList: [{ required: true, validator: this.imageListValidator }],
+        filterSaleAttr: [{ required: true, validator: this.saleAttrValidator }],
+      },
     }
   },
   computed: {
@@ -174,6 +184,62 @@ export default {
     },
   },
   methods: {
+    // 删除Spu属性
+    delSpuSaleAttr(index) {
+      this.spuSaleAttrList.splice(index, 1)
+    },
+
+    // 图片列表校验
+    imageListValidator(rule, value, callback) {
+      if (this.spuImageList.length > 0) {
+        // 校验通过
+        callback()
+        return
+      }
+      callback(new Error('至少上传一张SPU图片'))
+    },
+
+    // 销售属性校验
+    saleAttrValidator(rule, value, callback) {
+      if (this.spuSaleAttrList.length === 0) {
+        // 校验失败
+        callback(new Error('至少有一种销售属性'))
+        return
+      }
+      const failSaleAttr = this.spuSaleAttrList.some(
+        (sale) => sale.spuSaleAttrValueList.length === 0
+      )
+      if (failSaleAttr) {
+        // 校验失败
+        callback(new Error('每种销售属性中至少有一项属性'))
+        return
+      }
+      callback()
+    },
+
+    // 保存
+    save(formName) {
+      this.$refs[formName].validate(async (valid) => {
+        if (valid) {
+          const spuList = {
+            ...this.spuList,
+            spuImageList: this.spuImageList,
+            spuSaleAttrList: this.spuSaleAttrList,
+          }
+          console.log(spuList)
+          const result = await this.$API.spu.updateSpuInfo(spuList)
+          // console.log(result)
+          if (result.code === 200) {
+            this.$message.success('更新属性成功')
+            this.$emit('showDisplayList', spuList.category3Id)
+          } else {
+            this.$message.error(result.message)
+          }
+          this.isEditShow = false
+        }
+      })
+    },
+
     // 图片上传成功函数
     handleAvatarSuccess(res, file) {
       // console.log(res,file)
