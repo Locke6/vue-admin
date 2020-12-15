@@ -5,7 +5,7 @@
       class="el-icon-plus"
       style="margin-bottom: 20px"
       :disabled="!category3Id"
-      @click="$emit('showUpdateList')"
+      @click="$emit('showUpdateList', { category3Id })"
       >添加SPU</el-button
     >
     <el-table :data="spuList" border style="width: 100%" v-loading="loading">
@@ -24,7 +24,7 @@
             type="primary"
             class="el-icon-edit"
             size="mini"
-            @click="$emit('showUpdateList', row)"
+            @click="$emit('showUpdateList', { row })"
           ></el-button>
           <el-button type="info" class="el-icon-info" size="mini"></el-button>
           <el-popconfirm
@@ -61,9 +61,7 @@ export default {
   data() {
     return {
       spuList: [],
-
       category3Id: '',
-
       page: 1,
       limit: 6,
       total: 0,

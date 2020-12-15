@@ -1,6 +1,6 @@
 <template>
   <el-card class="box-card" style="margin-top: 20px">
-    <el-form :model="spuList" label-width="100px" :rules="rules" ref="spuForm" >
+    <el-form :model="spuList" label-width="100px" :rules="rules" ref="spuForm">
       <el-form-item label="SPU名称" prop="spuName">
         <el-input placeholder="SPU名称" v-model="spuList.spuName"></el-input>
       </el-form-item>
@@ -226,11 +226,13 @@ export default {
             spuImageList: this.spuImageList,
             spuSaleAttrList: this.spuSaleAttrList,
           }
-          console.log(spuList)
-          const result = await this.$API.spu.updateSpuInfo(spuList)
+          const { id } = spuList
+          const result = id
+            ? await this.$API.spu.updateSpuInfo(spuList)
+            : await this.$API.spu.saveSpuInfo(spuList)
           // console.log(result)
           if (result.code === 200) {
-            this.$message.success('更新属性成功')
+            this.$message.success(id?'更新属性成功':'添加属性成功')
             this.$emit('showDisplayList', spuList.category3Id)
           } else {
             this.$message.error(result.message)
@@ -324,6 +326,7 @@ export default {
     // 获取所有SPU图片
     async getSpuImageList() {
       const { id } = this.spuList
+      if (!id) return
       const result = await this.$API.spu.getSpuImageList(id)
       // console.log(result.data)
       if (result.code === 200) {
@@ -338,6 +341,7 @@ export default {
     // 获取Spu销售属性列表
     async getSpuSaleAttrList() {
       const { id } = this.spuList
+      if (!id) return
       const result = await this.$API.spu.getSpuSaleAttrList(id)
       // console.log(result.data)
       if (result.code === 200) {

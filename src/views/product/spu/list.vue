@@ -3,10 +3,7 @@
     <Category :isEditShow="isEditShow" />
 
     <!-- 展示table -->
-    <SpuShowList
-      v-if="isEditShow"
-      @showUpdateList="showUpdateList"
-    />
+    <SpuShowList v-if="isEditShow" @showUpdateList="showUpdateList" />
     <!-- 添加/修改table -->
     <SpuUpdateList
       v-else
@@ -43,10 +40,13 @@ export default {
     //
 
     // 显示更新SPU组件
-    showUpdateList(row, category) {
+    showUpdateList({row, category3Id}) {
       this.isEditShow = false
-      this.tranferSpu = { ...row }
-      this.categorySave = category
+      console.log(row, category3Id)
+      this.tranferSpu = {
+        category3Id,
+        ...row,
+      }
     },
 
     // 显示展示SPU组件
@@ -54,10 +54,9 @@ export default {
       this.isEditShow = true
       this.category3Id = category3Id
       this.$nextTick(() => {
-        this.$bus.$emit('change', this.category3Id)
+        this.$bus.$emit('change', category3Id)
       })
     },
-
   },
 }
 </script>
