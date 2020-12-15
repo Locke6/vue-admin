@@ -26,9 +26,10 @@
           class="avatar-uploader"
           :action="`${$BASE_API}/admin/product/fileUpload`"
           list-type="picture-card"
-          :file-list="spuImageList"
+          :file-list="formatImageList"
           :on-preview="handlePictureCardPreview"
           :on-remove="handleRemove"
+          :on-success="handleAvatarSuccess"
         >
           <i class="el-icon-plus"></i>
         </el-upload>
@@ -43,11 +44,11 @@
               ? `还有${filterSaleAttrList.length}个未选择`
               : '没有啦宝贝~'
           "
-          v-model="addSpuSaleAttr.id"
+          v-model="spuList.filterSaleAttr"
         >
           <el-option
             :label="filterSaleAttr.name"
-            :value="filterSaleAttr.id"
+            :value="`${filterSaleAttr.id}-${filterSaleAttr.name}`"
             v-for="filterSaleAttr in filterSaleAttrList"
             :key="filterSaleAttr.id"
           ></el-option>
@@ -74,13 +75,31 @@
             <template v-slot="{ row }">
               <el-tag
                 type="success"
-                v-for="spuSaleAttrValue in row.spuSaleAttrValueList"
+                v-for="(spuSaleAttrValue, index) in row.spuSaleAttrValueList"
                 :key="spuSaleAttrValue.id"
                 style="margin-right: 5px"
                 closable
-                @close="handleClose(row, spuSaleAttrValue.id)"
+                @close="handleClose(row, index)"
               >
                 {{ spuSaleAttrValue.saleAttrValueName }}</el-tag
+              >
+              <el-input
+                class="input-new-tag"
+                v-if="row.inputVisible"
+                v-model="inputValue"
+                ref="input"
+                size="mini"
+                @keyup.enter.native="handleInputConfirm(row)"
+                @blur="handleInputConfirm(row)"
+              >
+              </el-input>
+              <el-button
+                v-else
+                icon="el-icon-plus"
+                class="button-new-tag"
+                size="mini"
+                @click="showInput(row)"
+                >添加</el-button
               >
             </template>
           </el-table-column>
@@ -128,9 +147,23 @@ export default {
       spuSaleAttrList: [],
       saleAttrList: [],
       addSpuSaleAttr: {},
+      inputValue: '',
     }
   },
   computed: {
+    // 处理spu图片属性名，用于照片墙展示
+    formatImageList() {
+      return this.spuImageList.map((img) => {
+        return {
+          uid: img.uid || img.id,
+          // id: img.id,
+          name: img.imgName,
+          url: img.imgUrl,
+        }
+      })
+    },
+
+    // 过滤出spuSaleAttr中不包含的属性，展示到下拉列表中
     filterSaleAttrList() {
       return this.saleAttrList.filter(
         (saleAttr) =>
@@ -141,21 +174,70 @@ export default {
     },
   },
   methods: {
-    // 添加
-    addSpuSale(){},
+    // 图片上传成功函数
+    handleAvatarSuccess(res, file) {
+      // console.log(res,file)
+      const { id } = this.spuList
+      this.spuImageList.push({
+        imgName: file.name,
+        imgUrl: res.data,
+        spuId: id,
+        uid: file.uid,
+      })
+    },
+
+    // 添加spuSaleAttr
+    addSpuSale() {
+      const { filterSaleAttr, id } = this.spuList
+      const [baseSaleAttrId, saleAttrName] = filterSaleAttr.split('-')
+      this.spuSaleAttrList.push({
+        baseSaleAttrId: +baseSaleAttrId,
+        saleAttrName,
+        spuId: id,
+        spuSaleAttrValueList: [],
+      })
+      this.spuList.filterSaleAttr = ''
+    },
+
+    // 显示输入框
+    showInput(row) {
+      this.$set(row, 'inputVisible', true)
+      this.$nextTick(() => {
+        this.$refs.input.focus()
+      })
+    },
+
+    // 添加saleAttrValue值
+    handleInputConfirm(row) {
+      const { id } = this.spuList
+      if (this.inputValue) {
+        row.spuSaleAttrValueList.push({
+          baseSaleAttrId: row.baseSaleAttrId,
+          saleAttrValueName: this.inputValue,
+          saleAttrName: row.saleAttrName,
+          spuId: id,
+        })
+      }
+      row.inputVisible = false
+      this.inputValue = ''
+    },
 
     // 关闭标签
-    handleClose(row, id) {
-      row.spuSaleAttrValueList = row.spuSaleAttrValueList.filter(
-        (tag) => tag.id !== id
-      )
+    handleClose(row, index) {
+      row.spuSaleAttrValueList.splice(index, 1)
     },
 
+    // 删除图片回调
     handleRemove(file, fileList) {
       // console.log(file, fileList)
-      this.spuImageList = this.spuImageList.filter((img) => img.id !== file.id)
+
+      this.spuImageList = this.spuImageList.filter(
+        (img) => img.imgUrl !== file.url
+      )
+      // console.log(this.spuImageList, file)
     },
 
+    // 放大图片回调
     handlePictureCardPreview(file) {
       this.previewImageUrl = file.url
       this.visible = true
@@ -181,13 +263,7 @@ export default {
       if (result.code === 200) {
         this.$message.success('获取图片成功')
         // this.spuImageList = result.data
-        this.spuImageList = result.data.map((img) => {
-          return {
-            id: img.id,
-            name: img.imgName,
-            url: img.imgUrl,
-          }
-        })
+        this.spuImageList = result.data
       } else {
         this.$message.error(result.message)
       }
@@ -197,7 +273,7 @@ export default {
     async getSpuSaleAttrList() {
       const { id } = this.spuList
       const result = await this.$API.spu.getSpuSaleAttrList(id)
-      console.log(result.data)
+      // console.log(result.data)
       if (result.code === 200) {
         this.$message.success('获取SPU销售属性成功')
         this.spuSaleAttrList = result.data
@@ -253,4 +329,15 @@ export default {
   width: 178px
   height: 178px
   display: block
+
+.button-new-tag
+  height: 32px
+  line-height: 30px
+  padding-top: 0
+  padding-bottom: 0
+
+.input-new-tag
+  width: 90px
+  margin-left: 10px
+  vertical-align: bottom
 </style>

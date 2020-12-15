@@ -114,7 +114,7 @@ export default {
   },
   mounted() {
     this.$bus.$on('change', this.getAttrList)
-    this.category = this.categorySave
+    this.getAttrList(this.categorySave)
   },
   beforeDestroy() {
     this.$bus.$off('change', this.getAttrList)

@@ -180,7 +180,7 @@ export default {
           const { id, tmName, logoUrl } = this.trademarkForm
           // 判断数据是否更新，不更新则无法提交
           const tm = this.trademarkList.find((trademark) => id === trademark.id)
-          if (tm.tmName === tmName && tm.logoUrl === logoUrl) {
+          if (tm && tm.tmName === tmName && tm.logoUrl === logoUrl) {
             this.$message.warning('请修改数据后再更新')
             return
           }
@@ -243,7 +243,6 @@ export default {
 
 .el-table
   margin: 20px 0
-
 
 >>>.avatar-uploader .el-upload
   border: 1px dashed #d9d9d9
