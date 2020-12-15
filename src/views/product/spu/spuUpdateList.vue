@@ -1,6 +1,12 @@
 <template>
   <el-card class="box-card" style="margin-top: 20px">
-    <el-form :model="spuList" label-width="100px" :rules="rules" ref="spuForm">
+    <el-form
+      :model="spuList"
+      label-width="100px"
+      :rules="rules"
+      ref="spuForm"
+
+    >
       <el-form-item label="SPU名称" prop="spuName">
         <el-input placeholder="SPU名称" v-model="spuList.spuName"></el-input>
       </el-form-item>
@@ -158,6 +164,7 @@ export default {
         spuImageList: [{ required: true, validator: this.imageListValidator }],
         filterSaleAttr: [{ required: true, validator: this.saleAttrValidator }],
       },
+      loading: false,
     }
   },
   computed: {
@@ -232,7 +239,7 @@ export default {
             : await this.$API.spu.saveSpuInfo(spuList)
           // console.log(result)
           if (result.code === 200) {
-            this.$message.success(id?'更新属性成功':'添加属性成功')
+            this.$message.success(id ? '更新属性成功' : '添加属性成功')
             this.$emit('showDisplayList', spuList.category3Id)
           } else {
             this.$message.error(result.message)
@@ -367,12 +374,16 @@ export default {
   props: {
     tranferSpu: Object,
   },
-  mounted() {
+  async mounted() {
+    this.loading = true
+    await this.getTrademarkList()
     this.spuList = this.tranferSpu
-    this.getTrademarkList()
     this.getSpuImageList()
     this.getSpuSaleAttrList()
     this.getSaleAttrList()
+    this.$nextTick(() => {
+      this.loading = false
+    })
   },
 }
 </script>
