@@ -84,7 +84,7 @@ export default {
         this.attrVal3List = []
         this.category.category3Id = ''
       }
-      this.$bus.$emit('change', this.category.category3Id)
+      this.$bus.$emit('change', this.category)
       const res = await this.$API.attr[
         `getCategorys${classId ? classId + 1 : 1}`
       ](categoryId)
@@ -97,7 +97,7 @@ export default {
         ...this.category,
         category3Id,
       }
-      this.$bus.$emit('change', this.category.category3Id)
+      this.$bus.$emit('change', this.category)
     },
   },
   mounted() {

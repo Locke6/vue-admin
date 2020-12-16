@@ -3,7 +3,7 @@
     <Category :isEditShow="isEditShow" />
 
     <!-- 展示table -->
-    <el-card class="box-card" v-show="!isEditShow" style="margin-top: 20px">
+    <el-card class="box-card" v-show="isEditShow" style="margin-top: 20px">
       <el-button
         type="primary"
         class="el-icon-plus"
@@ -54,7 +54,7 @@
     </el-card>
 
     <!-- 添加/修改table -->
-    <el-card class="box-card" v-show="isEditShow" style="margin-top: 20px">
+    <el-card class="box-card" v-show="!isEditShow" style="margin-top: 20px">
       <el-form :model="attrForm" inline>
         <el-form-item label="属性名">
           <el-input
@@ -119,7 +119,7 @@
         @click="save"
         >保存</el-button
       >
-      <el-button style="margin: 20px 0 0 10px" @click="isEditShow = false"
+      <el-button style="margin: 20px 0 0 10px" @click="isEditShow = true"
         >取消</el-button
       >
     </el-card>
@@ -133,7 +133,7 @@ export default {
   data() {
     return {
       attrList: [],
-      isEditShow: false,
+      isEditShow: true,
       category: {
         category1Id: '',
         category2Id: '',
@@ -152,7 +152,7 @@ export default {
   methods: {
     // 添加属性
     add() {
-      this.isEditShow = true
+      this.isEditShow = false
       this.attrForm.attrName = ''
       this.attrForm.attrValueList = []
       this.attrForm.id = ''
@@ -160,7 +160,7 @@ export default {
 
     // 编辑属性
     update(row) {
-      this.isEditShow = true
+      this.isEditShow = false
       this.attrForm = JSON.parse(JSON.stringify(row))
     },
 
@@ -238,7 +238,7 @@ export default {
       } else {
         this.$message.error(result.message)
       }
-      this.isEditShow = false
+      this.isEditShow = true
     },
   },
   mounted() {

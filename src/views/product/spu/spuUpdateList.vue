@@ -1,12 +1,6 @@
 <template>
   <el-card class="box-card" style="margin-top: 20px">
-    <el-form
-      :model="spuList"
-      label-width="100px"
-      :rules="rules"
-      ref="spuForm"
-
-    >
+    <el-form :model="spuList" label-width="100px" :rules="rules" ref="spuForm">
       <el-form-item label="SPU名称" prop="spuName">
         <el-input placeholder="SPU名称" v-model="spuList.spuName"></el-input>
       </el-form-item>
@@ -150,7 +144,6 @@ export default {
     return {
       spuList: {},
       trademarkList: [],
-      trademarkId: '',
       visible: false,
       spuImageList: [],
       previewImageUrl: '',
@@ -333,7 +326,6 @@ export default {
     // 获取所有SPU图片
     async getSpuImageList() {
       const { id } = this.spuList
-      if (!id) return
       const result = await this.$API.spu.getSpuImageList(id)
       // console.log(result.data)
       if (result.code === 200) {
@@ -348,7 +340,6 @@ export default {
     // 获取Spu销售属性列表
     async getSpuSaleAttrList() {
       const { id } = this.spuList
-      if (!id) return
       const result = await this.$API.spu.getSpuSaleAttrList(id)
       // console.log(result.data)
       if (result.code === 200) {
@@ -372,18 +363,17 @@ export default {
     },
   },
   props: {
-    tranferSpu: Object,
+    tempSpu: Object,
   },
   async mounted() {
-    this.loading = true
     await this.getTrademarkList()
-    this.spuList = this.tranferSpu
-    this.getSpuImageList()
-    this.getSpuSaleAttrList()
+    this.spuList = this.tempSpu
     this.getSaleAttrList()
-    this.$nextTick(() => {
-      this.loading = false
-    })
+    const { id } = this.spuList
+    if (id) {
+      this.getSpuImageList()
+      this.getSpuSaleAttrList()
+    }
   },
 }
 </script>
