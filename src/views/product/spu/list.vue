@@ -37,14 +37,12 @@ export default {
   },
 
   methods: {
-    //
 
     // 显示更新SPU组件
-    showUpdateList({row, category3Id}) {
+    showUpdateList(row) {
       this.isEditShow = false
-      console.log(row, category3Id)
+      // console.log(row)
       this.tranferSpu = {
-        category3Id,
         ...row,
       }
     },

@@ -24,7 +24,7 @@
             type="primary"
             class="el-icon-edit"
             size="mini"
-            @click="$emit('showUpdateList', { row })"
+            @click="$emit('showUpdateList', row )"
           ></el-button>
           <el-button type="info" class="el-icon-info" size="mini"></el-button>
           <el-popconfirm
