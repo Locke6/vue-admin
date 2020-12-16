@@ -33,9 +33,17 @@
         ></el-input>
       </el-form-item>
       <el-form-item label="平台属性">
-        <div v-for="attr in attrList" :key="attr.id" style="margin-bottom: 5px">
+        <div
+          v-for="(attr, index) in attrList"
+          :key="attr.id"
+          style="margin-bottom: 5px"
+        >
           <label class="el-form-inline">{{ attr.attrName }}</label>
-          <el-select placeholder="请选择品牌">
+          <el-select
+            placeholder="请选择品牌"
+            @change="addAttr(index, $event)"
+            v-model="attr.attrId"
+          >
             <el-option
               :label="attrValue.valueName"
               :value="attrValue.id"
@@ -47,12 +55,16 @@
       </el-form-item>
       <el-form-item label="销售属性">
         <div
-          v-for="saleAttr in spuSaleAttrList"
+          v-for="(saleAttr, index) in spuSaleAttrList"
           :key="saleAttr.id"
           style="margin-bottom: 5px"
         >
           <label class="el-form-inline">{{ saleAttr.saleAttrName }}</label>
-          <el-select placeholder="请选择品牌">
+          <el-select
+            placeholder="请选择品牌"
+            @change="addSale(index, $event)"
+            v-model="saleAttr.SaleId"
+          >
             <el-option
               :label="value.saleAttrValueName"
               :value="value.id"
@@ -104,13 +116,34 @@ export default {
       spuSaleAttrList: [],
       spuImageList: [],
       attrList: [],
-      skuList: {},
+      skuList: {
+        skuAttrValueList: [],
+        skuSaleAttrValueList: [],
+      },
     }
   },
   props: {
     tempSku: Object,
   },
   methods: {
+    // 添加sale属性到skuList中
+    addSale(index, id) {
+      // console.log(index, id)
+      const sale = this.spuSaleAttrList[index].spuSaleAttrValueList.find(
+        (sale) => sale.id === id
+      )
+      this.skuList.skuSaleAttrValueList.push(sale)
+    },
+
+    // 添加attr属性到skuList中
+    addAttr(index, id) {
+      // console.log(index, id)
+      const attr = this.attrList[index].attrValueList.find(
+        (attr) => attr.id === id
+      )
+      this.skuList.skuAttrValueList.push(attr)
+    },
+
     // table勾选函数
     handleSelectionChange() {},
 
