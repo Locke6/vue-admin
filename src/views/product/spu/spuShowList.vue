@@ -5,7 +5,7 @@
       class="el-icon-plus"
       style="margin-bottom: 20px"
       :disabled="!category.category3Id"
-      @click="$emit('showUpdateList', { category3Id: category.category3Id })"
+      @click="$emit('showUpdateList')"
       >添加SPU</el-button
     >
     <el-table :data="spuList" border style="width: 100%" v-loading="loading">
@@ -19,7 +19,7 @@
             type="primary"
             class="el-icon-plus"
             size="mini"
-            @click="$emit('showSkulist', { row, category })"
+            @click="$emit('showSkulist', row)"
           ></el-button>
           <el-button
             type="primary"
@@ -57,39 +57,34 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
   name: 'SpuShowList',
   data() {
     return {
       spuList: [],
-      category: {
-        category1Id: '',
-        category2Id: '',
-        category3Id: '',
-      },
-
       page: 1,
       limit: 6,
       total: 0,
       loading: false,
     }
   },
-
-  methods: {
-    // 判断是否有category3Id
-    async getAttrList(category) {
-      this.category = category
-      if (!this.category.category3Id) {
-        this.page = 1
-        this.total = 0
-        this.limit = 6
-        this.spuList = []
-        return
-      }
-      const { page, limit } = this
-      this.getSpuList(page, limit)
+  computed: {
+    ...mapState({
+      category: (state) => state.category.category,
+    }),
+  },
+  watch: {
+    'category.category3Id': {
+      handler() {
+        if (!this.category.category3Id) return (this.spuList = [])
+        const { page, limit } = this
+        this.getSpuList(page, limit)
+      },
+      immediate: true,
     },
-
+  },
+  methods: {
     // 获取分级后SPU列表
     async getSpuList(page, limit) {
       this.loading = true
@@ -99,7 +94,6 @@ export default {
         limit,
         category3Id,
       })
-      // console.log(result.data)
       if (result.code === 200) {
         this.$message.success('获取属性成功')
         this.spuList = result.data.records
@@ -112,12 +106,9 @@ export default {
       }
     },
   },
-  mounted() {
-    this.$bus.$on('change', this.getAttrList)
-  },
-  beforeDestroy() {
-    this.$bus.$off('change', this.getAttrList)
-  },
+  beforeDestroy(){
+    
+  }
 }
 </script>
 

@@ -10,7 +10,7 @@
       :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
       :row-class-name="tableRowClassName"
     >
-      
+
       <el-table-column
         prop="id"
         label="分类ID"
@@ -30,11 +30,11 @@
         </template>
 
         <template slot-scope="scope">
-          <HintButton v-if="$hasBP('category.add')" title="添加子分类" :disabled="!scope.row.level" 
+          <HintButton v-if="$hasBP('category.add')" title="添加子分类" :disabled="!scope.row.level"
             size="mini" type="primary" icon="el-icon-plus"/>
-          <HintButton v-if="$hasBP('category.update')" title="修改分类" 
+          <HintButton v-if="$hasBP('category.update')" title="修改分类"
             size="mini" type="primary" icon="el-icon-edit"/>
-          <HintButton v-if="$hasBP('category.remove')" title="删除分类" 
+          <HintButton v-if="$hasBP('category.remove')" title="删除分类"
             size="mini" type="danger" icon="el-icon-delete"/>
         </template>
       </el-table-column>
@@ -57,7 +57,7 @@ export default {
   },
 
   methods: {
-    /* 
+    /*
     获取一级分类列表显示
     */
     getCategorys1 () {
@@ -70,8 +70,8 @@ export default {
         this.categorys = categorys
       })
     },
-    
-    /* 
+
+    /*
     异步加载下一级分类列表显示
     */
     async load (row, treeNode, resolve) {
@@ -85,7 +85,7 @@ export default {
       }
     },
 
-    /* 
+    /*
     获取二级分类列表, 返回包含数据的promise对象
     */
     getCategorys2 (row) {
@@ -106,7 +106,7 @@ export default {
       })
     },
 
-    /* 
+    /*
     获取三级分类列表, 返回包含数据的promise对象
     */
     async getCategorys3 (row) {
@@ -121,20 +121,20 @@ export default {
       }
     },
 
-    /* 
+    /*
     动态确定当前行的唯一key
     */
     getRowKey (row) {
       return row.level + '-' + row.id
     },
 
-    /* 
+    /*
     返回二级分类列表的类名
     */
     tableRowClassName({row, rowIndex}) {
       if (row.level === 2) {
         return 'level2-row'
-      } 
+      }
     },
   }
 }

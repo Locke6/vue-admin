@@ -129,7 +129,7 @@
         >
         <el-button
           style="margin: 20px 0 0 10px"
-          @click="$emit('showDisplayList', spuList.category3Id)"
+          @click="$emit('showDisplayList')"
           >取消</el-button
         >
       </el-form-item>
@@ -233,7 +233,7 @@ export default {
           // console.log(result)
           if (result.code === 200) {
             this.$message.success(id ? '更新属性成功' : '添加属性成功')
-            this.$emit('showDisplayList', spuList.category3Id)
+            this.$emit('showDisplayList')
           } else {
             this.$message.error(result.message)
           }

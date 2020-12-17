@@ -1,6 +1,10 @@
 <template>
   <div>
-    <SkuList v-if="isSkuShow" :tempSku="tempSku" />
+    <SkuList
+      v-if="isSkuShow"
+      :tempSku="tempSku"
+      @showDisplayList="showDisplayList"
+    />
 
     <div v-else>
       <Category :isEditShow="isEditShow" />
@@ -22,6 +26,7 @@
 </template>
 
 <script>
+import { mapState, mapMutations } from 'vuex'
 import Category from '@/components/Category'
 import SpuShowList from './spuShowList'
 import SpuUpdateList from './spuUpdateList'
@@ -36,7 +41,6 @@ export default {
         attrValueList: [],
       },
       tempSpu: {},
-      category3Id: '',
       isSkuShow: false,
       tempSku: {},
     }
@@ -47,35 +51,40 @@ export default {
     SpuUpdateList,
     SkuList,
   },
-
+  computed: {
+    ...mapState({
+      category: (state) => state.category.category,
+    }),
+  },
   methods: {
+    ...mapMutations(['CLEAR_CATEGORYID']),
+
     // 显示SkuList组件
-    showSkulist({ row, category }) {
+    showSkulist(row) {
       this.isSkuShow = true
       this.tempSku = {
+        ...this.category,
         ...row,
-        ...category,
       }
-      console.log(this.tempSku)
     },
 
     // 显示SpuUpdateList组件
     showUpdateList(row) {
       this.isEditShow = false
-      // console.log(row)
       this.tempSpu = {
+        category3Id: this.category.category3Id,
         ...row,
       }
     },
 
     // 显示SpuShowList组件
-    showDisplayList(category3Id) {
+    showDisplayList() {
       this.isEditShow = true
-      this.category3Id = category3Id
-      this.$nextTick(() => {
-        this.$bus.$emit('change', { category3Id })
-      })
+      this.isSkuShow = false
     },
+  },
+  beforeDestroy() {
+    this.CLEAR_CATEGORYID()
   },
 }
 </script>

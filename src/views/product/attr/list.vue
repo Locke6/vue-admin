@@ -127,6 +127,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import Category from '@/components/Category'
 export default {
   name: 'AttrList',
@@ -134,11 +135,6 @@ export default {
     return {
       attrList: [],
       isEditShow: true,
-      category: {
-        category1Id: '',
-        category2Id: '',
-        category3Id: '',
-      },
       attrForm: {
         attrName: '',
         attrValueList: [],
@@ -148,7 +144,17 @@ export default {
   components: {
     Category,
   },
-
+  computed: {
+    ...mapState({
+      category: (state) => state.category.category,
+    }),
+  },
+  watch: {
+    'category.category3Id'() {
+      if (!this.category.category3Id) return (this.attrList = [])
+      this.getAttrList()
+    },
+  },
   methods: {
     // 添加属性
     add() {
@@ -170,10 +176,8 @@ export default {
     },
 
     // 获取分级后属性列表
-    async getAttrList(category) {
-      this.category = category
-      if (!this.category.category3Id) return (this.attrList = [])
-      const result = await this.$API.attr.getAttrlist(category)
+    async getAttrList() {
+      const result = await this.$API.attr.getAttrlist(this.category)
       // console.log(result.data)
       if (result.code === 200) {
         this.$message.success('获取属性成功')
@@ -240,12 +244,6 @@ export default {
       }
       this.isEditShow = true
     },
-  },
-  mounted() {
-    this.$bus.$on('change', this.getAttrList)
-  },
-  beforeDestroy() {
-    this.$bus.$off('change', this.getAttrList)
   },
 }
 </script>

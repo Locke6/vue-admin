@@ -101,7 +101,11 @@
         <el-button type="primary" :disabled="false" style="margin-top: 20px"
           >保存</el-button
         >
-        <el-button style="margin: 20px 0 0 10px">取消</el-button>
+        <el-button
+          style="margin: 20px 0 0 10px"
+          @click="$emit('showDisplayList')"
+          >取消</el-button
+        >
       </el-form-item>
     </el-form>
   </el-card>
