@@ -71,5 +71,13 @@ export default {
       url: `${api_name}/spuImageList/${spuId}`,
       method: 'get',
     })
+  },
+  // 保存SKU
+  saveSkuInfo (sku) {
+    return request({
+      url: `${api_name}/saveSkuInfo`,
+      method: 'post',
+      data: sku
+    })
   }
 }

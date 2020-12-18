@@ -230,9 +230,22 @@ export default {
 
     // 保存发送请求
     save() {
-      this.$refs.skuForm.validate((valid) => {
+      this.$refs.skuForm.validate(async (valid) => {
         if (valid) {
           this.$message.success('校验通过')
+          const { tmId, category3Id, id: spuId } = this.spuList
+          const result = await this.$API.spu.saveSkuInfo({
+            ...this.skuList,
+            tmId,
+            spuId,
+            category3Id,
+          })
+          if (result.code === 200) {
+            this.$message.success('添加SKU成功')
+            this.$emit('showDisplayList')
+          } else {
+            this.$message.error(result.message)
+          }
         }
       })
     },
@@ -261,7 +274,10 @@ export default {
       const sale = this.spuSaleAttrList[index].spuSaleAttrValueList.find(
         (sale) => sale.id === id
       )
-      this.skuList.skuSaleAttrValueList.push(sale)
+      this.skuList.skuSaleAttrValueList.push({
+        saleAttrValueId: sale.id,
+        spuId: sale.spuId,
+      })
     },
 
     // 添加attr属性到skuList中
@@ -270,7 +286,10 @@ export default {
       const attr = this.attrList[index].attrValueList.find(
         (attr) => attr.id === id
       )
-      this.skuList.skuAttrValueList.push(attr)
+      this.skuList.skuAttrValueList.push({
+        attrId: attr.attrId,
+        valueId: attr.id,
+      })
     },
 
     // table勾选函数
