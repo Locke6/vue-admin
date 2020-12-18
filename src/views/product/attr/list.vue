@@ -177,7 +177,7 @@ export default {
 
     // 获取分级后属性列表
     async getAttrList() {
-      const result = await this.$API.attr.getAttrlist(this.category)
+      const result = await this.$API.default.attr.getAttrlist(this.category)
       // console.log(result.data)
       if (result.code === 200) {
         this.$message.success('获取属性成功')
@@ -190,7 +190,7 @@ export default {
     // 删除属性
     async delAttrValue(row, index) {
       const { attrId } = row.attrValueList[0]
-      const result = await this.$API.attr.delAttr(attrId)
+      const result = await this.$API.default.attr.delAttr(attrId)
       if (result.code === 200) {
         this.$message.success('删除成功')
       } else {
@@ -234,7 +234,7 @@ export default {
         this.attrForm.categoryId = this.category.category3Id
         this.attrForm.categoryLevel = 3
       }
-      const result = await this.$API.attr.saveAttrInfo(this.attrForm)
+      const result = await this.$API.default.attr.saveAttrInfo(this.attrForm)
       // console.log(result)
       if (result.code === 200) {
         this.$message.success('更新属性成功')

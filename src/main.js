@@ -45,9 +45,12 @@ import CategorySelector from '@/components/CategorySelector'
 Vue.component('HintButton', HintButton)
 Vue.component('CategorySelector', CategorySelector)
 
+
 // 挂载到Vue原型对象上, 以便组件中直接可见
 Vue.prototype.$hasBP = hasBtnPermission
 Vue.prototype.$API = API
+// Vue.prototype.$API = API.default
+// console.log(API.default,Vue.prototype.$API)
 Vue.prototype.$BASE_API = process.env.VUE_APP_BASE_API
 
 // 引入mockjs的配置, 不使用
